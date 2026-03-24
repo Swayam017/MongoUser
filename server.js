@@ -11,7 +11,8 @@ app.use(bodyParser.json());
 
 // Routes
 app.use("/api", userRoutes);
-
+const cartRoutes = require("./Routes/cartRoutes");
+app.use("/api/cart", cartRoutes);
 // Start server after DB connect
 connectDB().then(() => {
     app.listen(3000, () => {

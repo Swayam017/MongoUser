@@ -5,18 +5,31 @@ const COLLECTION = "users";
 
 async function insertUser(userData) {
     const db = getDB();
-    const result = await db.collection(COLLECTION).insertOne(userData);
-    return result;
+    return await db.collection(COLLECTION).insertOne(userData);
 }
 
-async function findUserByID(userId) {
+async function getAllUsers() {
+    const db = getDB();
+    return await db.collection(COLLECTION).find().toArray();
+}
+
+async function findUserByID(id) {
     const db = getDB();
     return await db.collection(COLLECTION).findOne({
-        _id: new ObjectId(userId)
+        _id: new ObjectId(id)
+    });
+}
+
+async function deleteUser(id) {
+    const db = getDB();
+    return await db.collection(COLLECTION).deleteOne({
+        _id: new ObjectId(id)
     });
 }
 
 module.exports = {
     insertUser,
-    findUserByID
+    getAllUsers,
+    findUserByID,
+    deleteUser
 };

@@ -1,14 +1,15 @@
 const { MongoClient } = require("mongodb");
-
-const url = "mongodb+srv://Swayam:<YOUR_PASSWORD>@cluster0.hzinypx.mongodb.net/?appName=Cluster0";
-const client = new MongoClient(url);
+require("dotenv").config();
+const client = new MongoClient(process.env.MONGO_URL);
 
 let db;
 
 async function connectDB() {
     try {
         await client.connect();
-        db = client.db(); 
+         // Ping test
+        await client.db("admin").command({ ping: 1 });
+        db = client.db("myDb");
         console.log("MongoDB Connected");
     } catch (err) {
         console.error("DB Connection Error:", err);
@@ -16,6 +17,7 @@ async function connectDB() {
 }
 
 function getDB() {
+    if (!db) throw new Error("DB not initialized");
     return db;
 }
 
