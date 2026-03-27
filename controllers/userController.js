@@ -1,3 +1,4 @@
+const { getDB } = require("../config/db");
 const userModel = require("../models/userModel");
 
 async function createUser(req, res) {
@@ -5,8 +6,8 @@ async function createUser(req, res) {
         const user = {
             name: req.body.name,
             email: req.body.email,
-            age: req.body.age,
-            hobbies: req.body.hobbies || [],
+            contact_no:req.body.contact_no,
+            address: req.body.address || [],
             isActive: true,
             createdAt: new Date()
         };
@@ -35,8 +36,18 @@ async function getUserById(req, res) {
         res.status(500).json({ error: err.message });
     }
 }
+async function getAllUsers(req, res) {
+    if (req.user.role !== "admin") {
+        return res.status(403).json({ message: "Access denied ❌" });
+    }
 
+    const db = getDB();
+    const users = await db.collection("users").find().toArray();
+
+    res.json(users);
+}
 module.exports = {
     createUser,
-    getUserById
+    getUserById,
+    getAllUsers
 };

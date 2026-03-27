@@ -1,89 +1,143 @@
-const API = "http://localhost:5000/api/cart";
-const userId = "YOUR_USER_ID_HERE"; // ⚠️ Replace with actual user id
+let allProducts = [];
+let recent = JSON.parse(localStorage.getItem("recent")) || [];
 
-// ---------------- PRODUCTS ----------------
-async function loadProducts() {
-  const res = await fetch("http://localhost:5000/api/products");
-  const products = await res.json();
+const token = localStorage.getItem("token");
 
-  const container = document.getElementById("products");
-  if (!container) return;
+// ================= NAVBAR =================
+function loadNavbarAuth() {
+    const container = document.getElementById("nav-auth");
+        const token = localStorage.getItem("token");
+    const role = localStorage.getItem("role");
 
-  products.forEach(product => {
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <h3>${product.name}</h3>
-      <p>₹${product.price}</p>
-      <button onclick="addToCart('${product._id}')">Add to Cart</button>
-    `;
-
-    container.appendChild(div);
-  });
+    if (!token) {
+        container.innerHTML = `
+            <button class="btn btn-outline-light" onclick="goLogin()">Login</button>
+            <button class="btn btn-primary" onclick="goSignup()">Sign Up</button>
+        `;
+    } else {
+        container.innerHTML = `
+          ${role === "admin" ? 
+                `<button class="btn btn-warning" onclick="goAdmin()">Admin</button>` 
+                : ""
+            }
+            <button class="btn btn-outline-light" onclick="goCart()">Cart</button>
+            <button class="btn btn-outline-light" onclick="goOrders()">Orders</button>
+            <button class="btn btn-outline-info" onclick="goProfile()">Profile</button>
+            <button class="btn btn-danger" onclick="logout()">Logout</button>
+        `;
+    }
 }
 
-// ➤ Add to Cart
+// ================= PRODUCTS =================
+async function loadProducts(containerId = "latest-products") {
+    const res = await fetch("/api/products");
+    const data = await res.json();
+
+    allProducts = data;
+
+    displayProducts(data, containerId);
+
+    if (containerId === "latest-products") {
+        displayProducts(recent, "recent-products");
+    }
+}
+
+// ================= DISPLAY =================
+function displayProducts(products, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = "";
+
+    products.forEach(p => {
+        const div = document.createElement("div");
+        div.className = "product";
+
+        div.innerHTML = `
+            <img src="${p.imageUrl}" 
+                 style="width:100%;height:150px;object-fit:cover;cursor:pointer;" 
+                 onclick="viewProduct('${p._id}')">
+
+            <h5>${p.title}</h5>
+            <p>₹${p.price}</p>
+
+            <button onclick="addToCart('${p._id}')">Add to Cart</button>
+        `;
+
+        container.appendChild(div);
+    });
+}
+
+// ================= SEARCH =================
+function searchProducts() {
+    const keyword = document.getElementById("search").value.toLowerCase();
+
+    const filtered = allProducts.filter(p =>
+        p.title.toLowerCase().includes(keyword)
+    );
+
+    displayProducts(filtered, "latest-products");
+}
+
+// ================= RECENT =================
+function viewProduct(id) {
+    const product = allProducts.find(p => p._id === id);
+
+    recent.unshift(product);
+    recent = recent.slice(0, 5);
+
+    localStorage.setItem("recent", JSON.stringify(recent));
+
+    displayProducts(recent, "recent-products");
+}
+
+// ================= CART =================
 async function addToCart(productId) {
-  await fetch(`${API}/add`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, productId })
-  });
+    if (!token) {
+        alert("Please login first");
+        window.location = "login.html";
+        return;
+    }
 
-  alert("Added to cart");
+    await fetch("/api/cart", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": token
+        },
+        body: JSON.stringify({ productId })
+    });
+
+    alert("Added to cart 🛒");
 }
 
-// ---------------- CART ----------------
-async function loadCart() {
-  const res = await fetch(`${API}/${userId}`);
-  const cart = await res.json();
+// ================= NAVIGATION =================
+function goLogin() { window.location = "login.html"; }
+function goSignup() { window.location = "signup.html"; }
+function goCart() { window.location = "cart.html"; }
+function goProfile() { window.location = "profile.html"; }
+function goAdmin() { window.location.href = "admin.html";}
+function goOrders() {window.location = "orders.html";}
 
-  const container = document.getElementById("cart");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  cart.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "card";
-
-    div.innerHTML = `
-      <h3>${item.product.name}</h3>
-      <p>₹${item.product.price}</p>
-
-      <input type="number" value="${item.quantity}" 
-        onchange="updateCart('${item.product._id}', this.value)" />
-
-      <button onclick="deleteItem('${item.product._id}')">Delete</button>
-    `;
-
-    container.appendChild(div);
-  });
+function logout() {
+    localStorage.clear();
+    alert("Logged out");
+    window.location = "index.html";
 }
 
-// ➤ Update quantity
-async function updateCart(productId, quantity) {
-  await fetch(`${API}/update`, {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, productId, quantity })
-  });
+// ================= CAROUSEL =================
+const images = [
+    "/images/ecom.png",
+    "/images/ecom3.jpg",
+    "/images/ecom2.jpg"
+];
 
-  loadCart();
-}
+let i = 0;
+setInterval(() => {
+    i = (i + 1) % images.length;
+    document.getElementById("slide").src = images[i];
+}, 3000);
 
-// ➤ Delete item
-async function deleteItem(productId) {
-  await fetch(`${API}/remove`, {
-    method: "DELETE",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userId, productId })
-  });
-
-  loadCart();
-}
-
-// ---------------- INIT ----------------
+// ================= INIT =================
+loadNavbarAuth();
 loadProducts();
-loadCart();

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Panel</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<h1 style="text-align:center;">Admin Panel 🛠️</h1>
+<div style="text-align:center; margin-bottom:20px;">
+    <button class="admin-orders-btn" onclick="goAdminOrders()">
+        📦 Manage Orders
+    </button>
+</div>
+<div class="admin-container">
+
+    <!-- ADD PRODUCT -->
+    <h3>Add Product</h3>
+    <input id="title" placeholder="Title">
+    <input id="price" placeholder="Price">
+    <input type="file" id="image">
+    <input id="description" placeholder="Description">
+
+    <button onclick="addProduct()">Add Product</button>
+
+    <hr>
+
+    <!-- PRODUCT LIST -->
+    <h3>All Products</h3>
+    <div id="admin-products"></div>
+
+    <hr>
+<h3>Users</h3>
+<div id="users"></div>
+
+</div>
+
+<script src="./js/admin.js"></script>
+
+</body>
+</html>

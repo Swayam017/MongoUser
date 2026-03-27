@@ -1,16 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Products</title>
-  <link rel="stylesheet" href="/public/css/style.css">
+    <title>Products</title>
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 <body>
 
-<h1>Products</h1>
-<div id="products"></div>
+<!-- NAVBAR -->
+<nav class="navbar">
+    <div class="logo">🛍 Smart Store</div>
 
-<a href="cart.html">Go to Cart</a>
+    <ul class="menu" id="nav-menu">
+        <!-- Dynamic navbar -->
+    </ul>
 
-<script src="script.js"></script>
+    <input type="text" id="search" placeholder="Search..." onkeyup="searchProducts()">
+</nav>
+
+<!-- TITLE -->
+<h1 style="text-align:center; margin-top:20px;">All Products</h1>
+
+<!-- PRODUCT LIST -->
+<div id="product-list" class="product-container"></div>
+
+<!-- FOOTER -->
+<footer>
+    <p>© 2026 Smart Store</p>
+</footer>
+
+<!-- MAIN SCRIPT -->
+<script src="./js/script.js"></script>
+
+<!-- PAGE SPECIFIC SCRIPT -->
+<script>
+    // Override default container
+    loadProducts("product-list");
+</script>
+
 </body>
 </html>

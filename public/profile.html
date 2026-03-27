@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Profile</title>
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+<body>
+
+<h1 style="text-align:center;">My Profile</h1>
+
+<div class="profile-container">
+    <p><strong>Name:</strong> <span id="name"></span></p>
+    <p><strong>Email:</strong> <span id="email"></span></p>
+    <p><strong>User ID:</strong> <span id="userId"></span></p>
+
+    <button onclick="logout()">Logout</button>
+</div>
+
+<script>
+if (!localStorage.getItem("token")) {
+    alert("Please login first");
+    window.location = "login.html";
+}
+
+const token = localStorage.getItem("token");
+const userId = localStorage.getItem("userId");
+
+// FETCH USER DATA
+async function loadProfile() {
+    const res = await fetch(`/api/users/${userId}`, {
+        headers: {
+            "Authorization": token
+        }
+    });
+
+    const user = await res.json();
+
+    document.getElementById("name").innerText = user.name;
+    document.getElementById("email").innerText = user.email;
+    document.getElementById("userId").innerText = user._id;
+}
+
+// LOGOUT
+function logout() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userId");
+
+    alert("Logged out");
+    window.location = "index.html";
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>
